@@ -443,7 +443,7 @@ def main():
         val_img, val_msk,
         args.min_water_ratio,
         aug_weights={idx: weight * 10 for idx, weight in aug_weights.items()},
-        is_training=False
+        is_training=True
     )
     
     print("\nProcessing test set...")
