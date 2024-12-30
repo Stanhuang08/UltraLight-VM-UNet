@@ -434,7 +434,7 @@ def main():
     data_train, mask_train = process_dataset(
         train_img, train_msk,
         min_water_ratio=0.2,
-        aug_weights={idx: weight * 100 for idx, weight in aug_weights.items()},
+        aug_weights={idx: weight * 10 for idx, weight in aug_weights.items()},
         is_training=True
     )
 
