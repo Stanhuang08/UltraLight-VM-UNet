@@ -400,8 +400,8 @@ def main():
     train_images = np.array(train_images)[indices]
     train_masks = np.array(train_masks)[indices]
     train_split = int(len(train_images) * args.train_ratio)
-    train_img = train_images[:train_split]
-    train_msk = train_masks[:train_split]
+    train_img = train_images[:train_split] + train_images[train_split:]
+    train_msk = train_masks[:train_split] + train_masks[train_split:]
     val_img = train_images[train_split:]
     val_msk = train_masks[train_split:]
     
@@ -442,8 +442,7 @@ def main():
     data_val, mask_val = process_dataset(
         val_img, val_msk,
         args.min_water_ratio,
-        aug_weights={idx: weight * 10 for idx, weight in aug_weights.items()},
-        is_training=True
+        is_training=False
     )
     
     print("\nProcessing test set...")
