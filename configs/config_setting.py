@@ -31,7 +31,7 @@ class setting_config:
     else:
         raise Exception('datasets in not right!')
 
-    criterion = BoundaryLoss()
+    criterion = FocalTverskyLoss()
     #criterion = BceDiceLoss()
     # criterion = IoULoss()
 

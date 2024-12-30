@@ -389,20 +389,24 @@ class IoULoss(nn.Module):
         iou_loss = 1 - iou.mean()
         return iou_loss
 
-class BoundaryLoss(nn.Module):
-    def __init__(self):
-        super(BoundaryLoss, self).__init__()
+class FocalTverskyLoss(nn.Module):
+    def __init__(self, alpha=0.5, beta=0.5, gamma=0.75, smooth=1e-6):
+        super(FocalTverskyLoss, self).__init__()
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
+        self.smooth = smooth
 
     def forward(self, pred, target):
-        # 計算邊界損失（需配合邊界提取算法）
-        pred_boundary = self.extract_boundary(pred)
-        target_boundary = self.extract_boundary(target)
-        boundary_diff = (pred_boundary - target_boundary) ** 2
-        return boundary_diff.mean()
-
-    def extract_boundary(self, mask):
-        # 使用邊緣檢測提取邊界
-        return torch.abs(mask[:, :, 1:] - mask[:, :, :-1]) + torch.abs(mask[:, 1:, :] - mask[:, :-1, :])
+        pred_flat = pred.view(-1)
+        target_flat = target.view(-1)
+        true_pos = (pred_flat * target_flat).sum()
+        false_neg = ((1 - pred_flat) * target_flat).sum()
+        false_pos = (pred_flat * (1 - target_flat)).sum()
+        tversky_index = (true_pos + self.smooth) / (
+            true_pos + self.alpha * false_pos + self.beta * false_neg + self.smooth
+        )
+        return (1 - tversky_index) ** self.gamma
 
 
 from thop import profile		 ## 导入thop模块
