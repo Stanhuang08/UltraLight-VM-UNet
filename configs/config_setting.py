@@ -31,7 +31,7 @@ class setting_config:
     else:
         raise Exception('datasets in not right!')
 
-    criterion = MAELoss()
+    criterion = BoundaryLoss()
     #criterion = BceDiceLoss()
     # criterion = IoULoss()
 

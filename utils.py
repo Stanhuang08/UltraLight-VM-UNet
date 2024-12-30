@@ -389,28 +389,21 @@ class IoULoss(nn.Module):
         iou_loss = 1 - iou.mean()
         return iou_loss
 
-class MSELoss(nn.Module):
+class BoundaryLoss(nn.Module):
     def __init__(self):
-        super(MSELoss, self).__init__()
-        self.mse = nn.MSELoss()
+        super(BoundaryLoss, self).__init__()
 
     def forward(self, pred, target):
-        size = pred.size(0)
-        pred_ = pred.view(size, -1)
-        target_ = target.view(size, -1)
-        return self.mse(pred_, target_)
+        # 計算邊界損失（需配合邊界提取算法）
+        pred_boundary = self.extract_boundary(pred)
+        target_boundary = self.extract_boundary(target)
+        boundary_diff = (pred_boundary - target_boundary) ** 2
+        return boundary_diff.mean()
 
+    def extract_boundary(self, mask):
+        # 使用邊緣檢測提取邊界
+        return torch.abs(mask[:, :, 1:] - mask[:, :, :-1]) + torch.abs(mask[:, 1:, :] - mask[:, :-1, :])
 
-class MAELoss(nn.Module):
-    def __init__(self):
-        super(MAELoss, self).__init__()
-        self.mae = nn.L1Loss()
-
-    def forward(self, pred, target):
-        size = pred.size(0)
-        pred_ = pred.view(size, -1)
-        target_ = target.view(size, -1)
-        return self.mae(pred_, target_)
 
 from thop import profile		 ## 导入thop模块
 def cal_params_flops(model, size, logger):
